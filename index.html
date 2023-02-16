@@ -1,19 +1,10 @@
 <!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <meta charset="utf-8">
-    <title>My first three.js app</title>
-    <style>
-        body {
-            margin: 0;
-        }
-    </style>
-</head>
-<h1>Not Generated</h1>
-<footer>
-    <script src="dist/main.bundle.js"></script>
-    <script src="dist/runtime.bundle.js"></script>
-</footer>
-
+    <title><%= htmlWebpackPlugin.options.title %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"><script defer src="runtime.bundle.js"></script><script defer src="main.bundle.js"></script></head>
+  <body>
+    <canvas id="c"></canvas>
+  </body>
 </html>
