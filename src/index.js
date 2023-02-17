@@ -3,61 +3,61 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 function main() {
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
 
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-        // const canvas = document.querySelector('#c');
+    // const canvas = document.querySelector('#c');
 
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.target.set(0, 5, 0);
-        controls.update();
+    const controls = new OrbitControls(camera, renderer.domElement);
+    // controls.target.set(0, 5, 0);
+    controls.update();
 
-        //--------- cube ------------------
+    //--------- cube ------------------
 
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        // const geometry = new THREE.SphereGeometry(5, 2);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ffe0 });
-        const cube = new THREE.Mesh(geometry, material);
-        scene.add(cube);
+    // const geometry = new THREE.BoxGeometry(1, 1, 1);
+    // // const geometry = new THREE.SphereGeometry(5, 2);
+    // const material = new THREE.MeshBasicMaterial({ color: 0x00ffe0 });
+    // const cube = new THREE.Mesh(geometry, material);
+    // scene.add(cube);
 
     camera.position.z = 2;
 
-        //------- line -------
-        //create a blue LineBasicMaterial
-        const lineMaterial = new THREE.LineBasicMaterial({ color: 0xfffff });
+    //------- line -------
+    // //create a blue LineBasicMaterial
+    // const lineMaterial = new THREE.LineBasicMaterial({ color: 0xfffff });
 
-        const points = [];
-        points.push(new THREE.Vector3(- 10, 0, 0));
-        points.push(new THREE.Vector3(0, 10, 0));
-        points.push(new THREE.Vector3(10, 0, 0));
+    // const points = [];
+    // points.push(new THREE.Vector3(- 10, 0, 0));
+    // points.push(new THREE.Vector3(0, 10, 0));
+    // points.push(new THREE.Vector3(10, 0, 0));
 
-        const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+    // const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
 
-        const line = new THREE.Line(lineGeometry, lineMaterial);
+    // const line = new THREE.Line(lineGeometry, lineMaterial);
 
-        scene.add(line);
+    // scene.add(line);
 
     camera.position.set(0, 0, 100);
     camera.lookAt(0, 0, 0);
 
+    //------------------------- earth 3d model loader
+    let model;
     {
-        //------------------------- earth 3d model loader
-
         const loader = new GLTFLoader();
 
-        loader.load('earth/scene.gltf', function (gltf) {
-            const root = gltf.scene;
-            scene.add(root);
+        loader.load('earth/scene.gltf', (gltf) => {
+            model = gltf.scene;
+            scene.add(model);
             gltf.animations; // Array<THREE.AnimationClip>
             gltf.scene; // THREE.Group
             gltf.scenes; // Array<THREE.Group>
             gltf.cameras; // Array<THREE.Camera>
             gltf.asset; // Object
-            const box = new THREE.Box3().setFromObject(root);
+            const box = new THREE.Box3().setFromObject(model);
             const boxSize = box.getSize(new THREE.Vector3()).length();
             const boxCenter = box.getCenter(new THREE.Vector3());
             console.log(boxSize);
@@ -70,14 +70,19 @@ function main() {
             controls.maxDistance = boxSize * 10;
             controls.target.copy(boxCenter);
             controls.update();
-        },
-            // called while loading is progressing
-            function (xhr) {
-                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-            },
-            function (error) {
-                console.error(error);
-            });
+        });
+    }
+
+    let shouldRotate = false;
+    renderer.domElement.addEventListener('pointerenter', rotateY);
+    renderer.domElement.addEventListener('pointerleave', rotateStop);
+
+    function rotateY(event) {
+        shouldRotate = true;
+    }
+
+    function rotateStop(event) {
+        shouldRotate = false;
     }
 
     {
@@ -86,22 +91,26 @@ function main() {
         const intensity = 0.6;
         const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
         scene.add(light);
-      }
-    
-      {
+    }
+
+    {
         const color = 0xFFFFFF;
         const intensity = 0.8;
         const light = new THREE.DirectionalLight(color, intensity);
         light.position.set(5, 10, 2);
         scene.add(light);
         scene.add(light.target);
-      }
+    }
     //-----------------------------
 
+    let yRotation = 0;
 
     function animate() {
         // cube.rotation.x += 0.01;
-        cube.rotation.y += 0.01;
+        // cube.rotation.y += 0.01;
+        if (model && shouldRotate) {
+            model.rotation.y += 0.01;
+        }
 
         renderer.render(scene, camera);
 
