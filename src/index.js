@@ -36,13 +36,14 @@ function main() {
     const plane2 = new THREE.Mesh(geometry2, material);
     plane2.position.z = 2;
 
+    const yAxis = new THREE.Vector3(0, 1, 0);
     const plane3 = new THREE.Mesh(geometry, material);
-    plane3.position.z = 3;
-    plane3.rotation.y += 3.14;
+    plane3.position.z = 2;
+    plane3.position.applyAxisAngle(yAxis, Math.PI);
 
     const plane4 = new THREE.Mesh(geometry2, material);
-    plane4.position.z = 3;
-    plane4.rotation.y += Math.PI;
+    plane4.position.z = 2;
+    plane4.position.applyAxisAngle(yAxis, Math.PI);
 
     plane.layers.enable(1);
     plane2.layers.enable(1);
@@ -112,7 +113,7 @@ function main() {
         pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
         pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
-        // console.log('pointer loc', pointer.x, pointer.y, event.clientX, event.clientY);
+        console.log('pointer loc', pointer.x, pointer.y, event.clientX, event.clientY);
     }
 
     let mouseDown = false;
@@ -146,11 +147,26 @@ function main() {
 
     let yRotation = 0;
     let INTERSECTED;
+    let direction = 'ctrClockwise';
 
     let arr = [];
     function animate() {
+
         if (model) {
-            model.rotation.y += 0.01;
+            if (pointer.x > 0.15)  {
+                model.rotation.y += 0.03;
+                direction = 'ctrClockwise';
+            } else if (pointer.x < -0.15) {
+                model.rotation.y -= 0.03;
+                direction = 'clockwise';
+            } else {
+                if (direction == 'ctrClockwise') {
+                    model.rotation.y += 0.01;
+                } else if (direction == 'clockwise') {
+                    model.rotation.y -= 0.01;
+                }
+                
+            }
         }
 
         // update the picking ray with the camera and pointer position
