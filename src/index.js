@@ -8,36 +8,14 @@ function main() {
 
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+    // document.body.appendChild(renderer.domElement);
+    document.querySelector('#container').appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     // controls.target.set(0, 5, 0);
     controls.update();
 
-    //--------- cube ------------------
 
-    // const geometry = new THREE.BoxGeometry(1, 1, 1);
-    // // const geometry = new THREE.SphereGeometry(5, 2);
-    // const material = new THREE.MeshBasicMaterial({ color: 0x00ffe0 });
-    // const cube = new THREE.Mesh(geometry, material);
-    // scene.add(cube);
-
-    // camera.position.z = 2;
-
-    //------- line -------
-    // //create a blue LineBasicMaterial
-    // const lineMaterial = new THREE.LineBasicMaterial({ color: 0xfffff });
-
-    // const points = [];
-    // points.push(new THREE.Vector3(- 10, 0, 0));
-    // points.push(new THREE.Vector3(0, 10, 0));
-    // points.push(new THREE.Vector3(10, 0, 0));
-
-    // const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-
-    // const line = new THREE.Line(lineGeometry, lineMaterial);
-
-    // scene.add(line);
 
 
     const width = 1;  // ui: width
@@ -58,6 +36,8 @@ function main() {
     const plane2 = new THREE.Mesh(geometry2, material);
     plane2.position.z = 2;
 
+    plane.layers.enable(1);
+    plane2.layers.enable(1);
 
 
     camera.position.set(0, 0, 150);
@@ -97,7 +77,9 @@ function main() {
     let shouldRotate = false;
     // renderer.domElement.addEventListener('pointerenter', rotateY);
     // renderer.domElement.addEventListener('pointerleave', rotateStop);
-    window.addEventListener( 'pointermove', onPointerMove );
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mouseup', onMouseUp);
 
     function rotateY(event) {
         shouldRotate = true;
@@ -107,28 +89,26 @@ function main() {
         shouldRotate = false;
     }
 
-    const raycaster = new THREE.Raycaster(camera.position, camera.Vector3, 0, 10);
+    const raycaster = new THREE.Raycaster();
+    raycaster.layers.set( 1 );
     const pointer = new THREE.Vector2();
 
     function onPointerMove(event) {
 
         // calculate pointer position in normalized device coordinates
         // (-1 to +1) for both components
-
         pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
         pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
-        // console.log('pointer loc', pointer.x, pointer.y);
-
+        // console.log('pointer loc', pointer.x, pointer.y, event.clientX, event.clientY);
     }
 
-    //--------- Lighting
-    {
-        // const skyColor = 0xB1E1FF;  // light blue
-        // const groundColor = 0xB97A20;  // brownish orange
-        // const intensity = 0.6;
-        // const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-        // scene.add(light);
+    let mouseDown = false;
+    function onMouseDown(event) {
+        mouseDown = true;
+    }
+    function onMouseUp(event) {
+        mouseDown = false;
     }
 
     {
@@ -155,9 +135,8 @@ function main() {
     let yRotation = 0;
     let INTERSECTED;
 
+    let arr = [];
     function animate() {
-        // cube.rotation.x += 0.01;
-        // cube.rotation.y += 0.01;
         if (model) {
             model.rotation.y += 0.01;
         }
@@ -168,26 +147,23 @@ function main() {
         // calculate objects intersecting the picking ray
         const intersects = raycaster.intersectObjects(scene.children);
 
-        if ( intersects.length > 0 ) {
-            console.log('intersected objects', intersects);
-            if (intersects[0].object.geometry.type === 'PlaneGeometry') {
-                INTERSECTED = intersects[0].object;
-                INTERSECTED.scale.set(1.5,1.5,0);
-            } else {
-                if (INTERSECTED) {
-                    INTERSECTED.scale.set(1,1,1);
-                }
+        if (intersects.length > 0) {
+            INTERSECTED = intersects[0].object;
+            INTERSECTED.scale.set(1.5, 1.5, 1);
+            document.body.style.cursor = 'pointer';
+            if (mouseDown) {
+                window.open("https://www.google.com");
             }
         } else {
             if (INTERSECTED) {
-                INTERSECTED.scale.set(1,1,1);
+                INTERSECTED.scale.set(1, 1, 1);
             }
+            document.body.style.cursor = 'default';
         }
 
         renderer.render(scene, camera);
 
         requestAnimationFrame(animate);
-
     }
 
 
