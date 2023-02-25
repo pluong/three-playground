@@ -36,8 +36,18 @@ function main() {
     const plane2 = new THREE.Mesh(geometry2, material);
     plane2.position.z = 2;
 
+    const plane3 = new THREE.Mesh(geometry, material);
+    plane3.position.z = 3;
+    plane3.rotation.y += 3.14;
+
+    const plane4 = new THREE.Mesh(geometry2, material);
+    plane4.position.z = 3;
+    plane4.rotation.y += Math.PI;
+
     plane.layers.enable(1);
     plane2.layers.enable(1);
+    plane3.layers.enable(1);
+    plane4.layers.enable(1);
 
 
     camera.position.set(0, 0, 150);
@@ -52,6 +62,8 @@ function main() {
             model = gltf.scene;
             model.add(plane);
             model.add(plane2);
+            model.add(plane3);
+            model.add(plane4);
             scene.add(model);
             // gltf.animations; // Array<THREE.AnimationClip>
             // gltf.scene; // THREE.Group
